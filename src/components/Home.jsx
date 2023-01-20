@@ -42,13 +42,13 @@ export default function Home() {
     e.preventDefault();
     switch (form.operador) {
     case 'maior que':
-      setBusca(planets.filter((planet) => +planet[form.coluna] > +form.quantidade));
+      setBusca(busca.filter((planet) => +planet[form.coluna] > +form.quantidade));
       break;
     case 'menor que':
-      setBusca(planets.filter((planet) => +planet[form.coluna] < +form.quantidade));
+      setBusca(busca.filter((planet) => +planet[form.coluna] < +form.quantidade));
       break;
     case 'igual a':
-      setBusca(planets.filter((planet) => +planet[form.coluna] === +form.quantidade));
+      setBusca(busca.filter((planet) => +planet[form.coluna] === +form.quantidade));
       break;
     default:
       return null;
