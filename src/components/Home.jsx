@@ -1,11 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { fetchApi } from '../services';
 import '../styles/Home.css';
+import { formulario, inputSelect01, operador } from '../constant';
+import Select from './Select';
 
 export default function Home() {
   const [planets, setPlanets] = useState([]);
   const [busca, setBusca] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [form, setForm] = useState(formulario);
 
   const loadPlanets = useCallback(async () => {
     const data = await fetchApi();
@@ -30,6 +33,28 @@ export default function Home() {
       .name.toLowerCase().includes(value)));
   };
 
+  const handleChange = ({ target }) => {
+    const { name, value } = target;
+    setForm({ ...form, [name]: value });
+  };
+
+  const filtrar = (e) => {
+    e.preventDefault();
+    switch (form.operador) {
+    case 'maior que':
+      setBusca(planets.filter((planet) => +planet[form.coluna] > +form.quantidade));
+      break;
+    case 'menor que':
+      setBusca(planets.filter((planet) => +planet[form.coluna] < +form.quantidade));
+      break;
+    case 'igual a':
+      setBusca(planets.filter((planet) => +planet[form.coluna] === +form.quantidade));
+      break;
+    default:
+      return null;
+    }
+  };
+
   return (
     <section>
       <label htmlFor="input">
@@ -42,6 +67,40 @@ export default function Home() {
           onChange={ nameFilter }
         />
       </label>
+      <section>
+        Coluna
+        <Select
+          name="coluna"
+          value={ form.coluna }
+          func={ handleChange }
+          testId="column-filter"
+          arr={ inputSelect01 }
+        />
+        Operador
+        <Select
+          name="operador"
+          value={ form.operador }
+          func={ handleChange }
+          testId="comparison-filter"
+          arr={ operador }
+        />
+        Quantidade
+        <input
+          type="number"
+          name="quantidade"
+          id="quantidade"
+          value={ form.quantidade }
+          onChange={ handleChange }
+          data-testid="value-filter"
+        />
+        <button
+          type="button"
+          data-testid="button-filter"
+          onClick={ filtrar }
+        >
+          Filtrar
+        </button>
+      </section>
       <table>
         <thead>
           <tr>
