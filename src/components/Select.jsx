@@ -10,9 +10,9 @@ export default function Select({ name, value, func, testId, arr }) {
       onChange={ func }
       data-testid={ testId }
     >
-      {arr.map((item) => (
+      {arr.map((item, i) => (
         <option
-          key={ item }
+          key={ item + i }
           value={ item }
         >
           {item}

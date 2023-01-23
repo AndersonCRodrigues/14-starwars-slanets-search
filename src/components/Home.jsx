@@ -10,6 +10,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState(formulario);
   const [array, setArray] = useState(inputSelect01);
+  const [filtro, setFiltro] = useState([]);
 
   const loadPlanets = useCallback(async () => {
     const data = await fetchApi();
@@ -28,6 +29,25 @@ export default function Home() {
     );
   }
 
+  const filtrar = (atualiza) => {
+    if (atualiza.length < 1) setBusca(planets);
+    atualiza.forEach((f) => {
+      switch (f.operador) {
+      case 'maior que':
+        setBusca((b) => b.filter((planet) => +planet[f.coluna] > +f.quantidade));
+        break;
+      case 'menor que':
+        setBusca((b) => b.filter((planet) => +planet[f.coluna] < +f.quantidade));
+        break;
+      case 'igual a':
+        setBusca((b) => b.filter((planet) => +planet[f.coluna] === +f.quantidade));
+        break;
+      default:
+        return null;
+      }
+    });
+  };
+
   const nameFilter = ({ target }) => {
     const { value } = target;
     setBusca(planets.filter((planet) => planet
@@ -39,28 +59,45 @@ export default function Home() {
     setForm({ ...form, [name]: value });
   };
 
-  const filtrar = (e) => {
-    e.preventDefault();
-    switch (form.operador) {
-    case 'maior que':
-      setBusca(busca.filter((planet) => +planet[form.coluna] > +form.quantidade));
-      break;
-    case 'menor que':
-      setBusca(busca.filter((planet) => +planet[form.coluna] < +form.quantidade));
-      break;
-    case 'igual a':
-      setBusca(busca.filter((planet) => +planet[form.coluna] === +form.quantidade));
-      break;
-    default:
-      return null;
-    }
-
+  const atualizaState = () => {
     const index = array.indexOf(form.coluna);
     if (index > MENOS_1) {
       array.splice(index, 1);
       setArray(array);
       setForm({ ...form, coluna: array[0] });
     }
+  };
+
+  const addFiltro = (e) => {
+    e.preventDefault();
+    const obj = {
+      coluna: form.coluna,
+      operador: form.operador,
+      quantidade: form.quantidade,
+    };
+
+    filtro.push(obj);
+
+    filtrar(filtro);
+    atualizaState();
+
+    setFiltro(filtro);
+  };
+
+  const revomeFiltro = (index) => {
+    const newFiltro = filtro.splice(index, 1);
+    setArray([...array, newFiltro[0].coluna]);
+    setBusca(planets);
+    filtrar(filtro);
+    setFiltro(filtro);
+  };
+
+  const removeAll = () => {
+    const item = [];
+    filtro.forEach(({ coluna }) => item.push(coluna));
+    setArray([...array, ...item]);
+    setFiltro([]);
+    filtrar([]);
   };
 
   return (
@@ -104,10 +141,34 @@ export default function Home() {
         <button
           type="button"
           data-testid="button-filter"
-          onClick={ filtrar }
+          onClick={ addFiltro }
         >
           Filtrar
         </button>
+        <button
+          data-testid="button-remove-filters"
+          onClick={ removeAll }
+        >
+          Remover Filtros
+        </button>
+      </section>
+      <section>
+        {filtro && filtro.map((o, index) => (
+          <div
+            key={ o.coluna + index }
+            data-testid="filter"
+          >
+            <span>
+              {`${o.coluna} ${o.operador} ${o.quantidade}`}
+              {' '}
+              <button
+                type="button"
+                onClick={ () => revomeFiltro(index) }
+              >
+                X
+              </button>
+            </span>
+          </div>))}
       </section>
       <table>
         <thead>
