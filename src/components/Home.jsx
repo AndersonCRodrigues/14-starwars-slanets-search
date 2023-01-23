@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { fetchApi } from '../services';
 import '../styles/Home.css';
-import { MENOS_1, formulario, inputSelect01, operador } from '../constant';
+import { MENOS_1, formulario, inputSelect01, operador, ordenar } from '../constant';
 import Select from './Select';
+import TableHead from './TableHead';
 
 export default function Home() {
   const [planets, setPlanets] = useState([]);
@@ -11,6 +12,7 @@ export default function Home() {
   const [form, setForm] = useState(formulario);
   const [array, setArray] = useState(inputSelect01);
   const [filtro, setFiltro] = useState([]);
+  const [order, setOrder] = useState(ordenar);
 
   const loadPlanets = useCallback(async () => {
     const data = await fetchApi();
@@ -100,6 +102,20 @@ export default function Home() {
     filtrar([]);
   };
 
+  const handleOrder = ({ target }) => {
+    const { name, value } = target;
+    setOrder({ ...order, [name]: value });
+  };
+
+  const ordenaFiltro = (e) => {
+    e.preventDefault();
+    if (order.sort === 'ASC') {
+      setBusca((search) => search.sort((a, b) => (a[order.column] - b[order.column])));
+    } else {
+      setBusca((search) => search.sort((a, b) => (b[order.column] - a[order.column])));
+    }
+  };
+
   return (
     <section>
       <label htmlFor="input">
@@ -139,12 +155,42 @@ export default function Home() {
           data-testid="value-filter"
         />
         <button
-          type="button"
           data-testid="button-filter"
           onClick={ addFiltro }
         >
           Filtrar
         </button>
+        Ordenar
+        <Select
+          name="column"
+          value={ order.column }
+          func={ handleOrder }
+          testId="column-sort"
+          arr={ inputSelect01 }
+        />
+        <label htmlFor="ASC">
+          <input
+            type="radio"
+            name="sort"
+            value="ASC"
+            id="ASC"
+            onChange={ handleOrder }
+            data-testid="column-sort-input-asc"
+          />
+          Ascendente
+        </label>
+        <label htmlFor="DESC">
+          <input
+            type="radio"
+            name="sort"
+            value="DESC"
+            id="DESC"
+            onChange={ handleOrder }
+            data-testid="column-sort-input-desc"
+          />
+          Descrecente
+        </label>
+        <button data-testid="column-sort-button" onClick={ ordenaFiltro }>Ordenar</button>
         <button
           data-testid="button-remove-filters"
           onClick={ removeAll }
@@ -162,7 +208,6 @@ export default function Home() {
               {`${o.coluna} ${o.operador} ${o.quantidade}`}
               {' '}
               <button
-                type="button"
                 onClick={ () => revomeFiltro(index) }
               >
                 X
@@ -171,27 +216,11 @@ export default function Home() {
           </div>))}
       </section>
       <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Rotation Period</th>
-            <th>Orbital Period</th>
-            <th>Diamenter</th>
-            <th>Climate</th>
-            <th>Gravity</th>
-            <th>Terrain</th>
-            <th>Surface Water</th>
-            <th>Population</th>
-            <th>Films</th>
-            <th>Created</th>
-            <th>Edited</th>
-            <th>Url</th>
-          </tr>
-        </thead>
+        <TableHead />
         <tbody>
           {busca.map((planet, index) => (
             <tr key={ index + planet.name }>
-              <td>{planet.name}</td>
+              <td data-testid={ planet.name }>{planet.name}</td>
               <td>{planet.rotation_period}</td>
               <td>{planet.orbital_period}</td>
               <td>{planet.diameter}</td>

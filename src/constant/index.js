@@ -19,3 +19,5 @@ export const operador = [
 ];
 
 export const MENOS_1 = -1;
+
+export const ordenar = { column: 'population', sort: 'ASC' };
