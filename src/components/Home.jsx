@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { fetchApi } from '../services';
 import '../styles/Home.css';
-import { formulario, inputSelect01, operador } from '../constant';
+import { MENOS_1, formulario, inputSelect01, operador } from '../constant';
 import Select from './Select';
 
 export default function Home() {
@@ -9,6 +9,7 @@ export default function Home() {
   const [busca, setBusca] = useState([]);
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState(formulario);
+  const [array, setArray] = useState(inputSelect01);
 
   const loadPlanets = useCallback(async () => {
     const data = await fetchApi();
@@ -53,6 +54,13 @@ export default function Home() {
     default:
       return null;
     }
+
+    const index = array.indexOf(form.coluna);
+    if (index > MENOS_1) {
+      array.splice(index, 1);
+      setArray(array);
+      setForm({ ...form, coluna: array[0] });
+    }
   };
 
   return (
@@ -74,7 +82,7 @@ export default function Home() {
           value={ form.coluna }
           func={ handleChange }
           testId="column-filter"
-          arr={ inputSelect01 }
+          arr={ array }
         />
         Operador
         <Select

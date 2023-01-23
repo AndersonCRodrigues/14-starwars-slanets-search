@@ -17,3 +17,5 @@ export const operador = [
   'menor que',
   'igual a',
 ];
+
+export const MENOS_1 = -1;
